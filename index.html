@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/jpeg" href="/logo.jpeg" />
+    <link rel="shortcut icon" type="image/jpeg" href="/logo.jpeg" />
+    <meta name="theme-color" content="#0d4436" />
+    <title>Era Infra Developers</title>
+    <script>
+      // 1. Suppress and swallow read-only fetch mutation error thrown by sandbox environments/content-scripts
+      window.addEventListener('error', function(event) {
+        if (event.message && (
+          event.message.indexOf('Cannot set property fetch') !== -1 ||
+          event.message.indexOf('fetch of #<Window>') !== -1 ||
+          event.message.indexOf('only a getter') !== -1
+        )) {
+          console.warn("Suppressed read-only fetch mutation error:", event.message);
+          event.stopImmediatePropagation();
+          event.preventDefault();
+          return true;
+        }
+      }, true);
+
+      window.addEventListener('unhandledrejection', function(event) {
+        if (event.reason && event.reason.message && (
+          event.reason.message.indexOf('Cannot set property fetch') !== -1 ||
+          event.reason.message.indexOf('fetch of #<Window>') !== -1 ||
+          event.reason.message.indexOf('only a getter') !== -1
+        )) {
+          console.warn("Suppressed read-only fetch mutation rejection:", event.reason.message);
+          event.stopImmediatePropagation();
+          event.preventDefault();
+          return true;
+        }
+      }, true);
+
+      // 2. Proactively register configurable fetch property to support setting/mocking fetch without error
+      (function() {
+        var originalFetch = window.fetch;
+        var customFetch = originalFetch;
+        try {
+          Object.defineProperty(window, 'fetch', {
+            get: function() {
+              return customFetch;
+            },
+            set: function(val) {
+              customFetch = val;
+            },
+            configurable: true,
+            enumerable: true
+          });
+        } catch (e) {
+          console.warn("Could not redefine window.fetch property natively (sealed context):", e);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

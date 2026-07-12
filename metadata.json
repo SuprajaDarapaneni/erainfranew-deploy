@@ -1,0 +1,6 @@
+{
+  "name": "Era Infra Developers",
+  "description": "Luxurious, conversion-focused real estate website for resorts, open plots, and premium villas by Era Infra Developers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
